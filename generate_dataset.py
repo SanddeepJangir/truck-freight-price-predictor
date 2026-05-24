@@ -57,7 +57,7 @@ df = pd.DataFrame({
     'freight_price'     : freight_price
 })
 
-df.to_csv('/home/claude/freight_project/truck_freight.csv', index=False)
+df.to_csv('/home/freight_project/truck_freight.csv', index=False)
 print("Dataset saved: truck_freight.csv")
 print(f"Shape: {df.shape}")
 print("\nFirst 5 rows:")
