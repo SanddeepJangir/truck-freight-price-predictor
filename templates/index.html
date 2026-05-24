@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Truck Freight Price Predictor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 15px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      max-width: 620px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a5276, #2e86c1);
+      color: white;
+      padding: 28px 32px;
+      text-align: center;
+    }
+
+    .header h1 { font-size: 22px; font-weight: 700; }
+    .header p  { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+
+    .form-body { padding: 28px 32px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field { display: flex; flex-direction: column; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      padding: 10px 12px;
+      border: 1.5px solid #dce3ea;
+      border-radius: 7px;
+      font-size: 14px;
+      color: #222;
+      transition: border 0.2s;
+      background: #fafbfc;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2e86c1;
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #1a5276, #2e86c1);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .result {
+      display: none;
+      margin-top: 22px;
+      padding: 18px;
+      background: #eaf4fb;
+      border: 1.5px solid #aed6f1;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .result .label { font-size: 13px; color: #555; margin-bottom: 4px; }
+    .result .price { font-size: 32px; font-weight: 800; color: #1a5276; }
+
+    .error {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      background: #fdecea;
+      border: 1.5px solid #f1948a;
+      border-radius: 8px;
+      color: #c0392b;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚛 Truck Freight Price Predictor</h1>
+      <p>Enter route and cargo details to estimate freight cost</p>
+    </div>
+
+    <div class="form-body">
+      <form id="predictForm">
+
+        <div class="row">
+          <div class="field">
+            <label>Distance (km)</label>
+            <input type="number" name="distance_km" placeholder="e.g. 500" min="1" required />
+          </div>
+          <div class="field">
+            <label>Load Weight (tons)</label>
+            <input type="number" name="load_weight_ton" placeholder="e.g. 10.5" step="0.01" min="0.1" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Fuel Price (₹/litre)</label>
+            <input type="number" name="fuel_price_liter" placeholder="e.g. 90" step="0.01" min="1" required />
+          </div>
+          <div class="field">
+            <label>Toll Charges (₹)</label>
+            <input type="number" name="toll_charges" placeholder="e.g. 800" min="0" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Route Type</label>
+            <select name="route_type" required>
+              <option value="">-- Select --</option>
+              <option value="Highway">Highway</option>
+              <option value="City">City</option>
+              <option value="Mixed">Mixed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Vehicle Type</label>
+            <select name="vehicle_type" required>
+              <option value="">-- Select --</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Cargo Type</label>
+            <select name="cargo_type" required>
+              <option value="">-- Select --</option>
+              <option value="General">General</option>
+              <option value="Fragile">Fragile</option>
+              <option value="Hazardous">Hazardous</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Number of Stops</label>
+            <input type="number" name="num_stops" placeholder="e.g. 2" min="0" max="10" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field full">
+            <label>Driver Experience (years)</label>
+            <input type="number" name="driver_experience" placeholder="e.g. 5" min="0" max="40" required />
+          </div>
+        </div>
+
+        <button type="submit">Predict Freight Price</button>
+      </form>
+
+      <div class="result" id="result">
+        <div class="label">Estimated Freight Price</div>
+        <div class="price" id="priceDisplay">--</div>
+      </div>
+
+      <div class="error" id="errorBox"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('predictForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const resultBox = document.getElementById('result');
+      const errorBox  = document.getElementById('errorBox');
+      const priceDisp = document.getElementById('priceDisplay');
+
+      resultBox.style.display = 'none';
+      errorBox.style.display  = 'none';
+
+      const formData = new FormData(this);
+
+      try {
+        const res  = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          priceDisp.textContent   = '₹ ' + data.freight_price.toLocaleString('en-IN');
+          resultBox.style.display = 'block';
+        } else {
+          errorBox.textContent   = 'Error: ' + data.message;
+          errorBox.style.display = 'block';
+        }
+      } catch (err) {
+        errorBox.textContent   = 'Could not connect to server. Is Flask running?';
+        errorBox.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
